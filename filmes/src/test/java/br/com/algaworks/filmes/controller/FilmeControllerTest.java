@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,29 +18,34 @@ import br.com.algaworks.filmes.model.Filme;
 import br.com.algaworks.filmes.service.FilmeService;
 import io.restassured.http.ContentType;
 
-@WebMvcTest
+@WebMvcTest // notação para o teste ser rodado dentro de um contexto web.
 public class FilmeControllerTest {
 
-	@Autowired
+	@Autowired  // injetar a instancia do componente
 	private FilmeController filmeController;
 	
-	@MockBean
+	@MockBean //dependencia do spring controler Mockada para criar uma imprementação falsa
 	private FilmeService filmeService;
 	
-	@BeforeEach
+	@BeforeEach // colocar para ele rodar antes dos testes para controlar o contexto e não carregar todas as informações do projeto
 	public void setup() {
 		standaloneSetup(this.filmeController);
 	}
 	
-	@Test
+	@Test//notação para ser reconhecido como um test
 	public void deveRetornarSucesso_QuandoBuscarFilme() {
 
-		when(this.filmeService.obterFilme(1L))
+		//quando chamarmos filmeService ele ira retornar o thenReturn
+
+		when(this.filmeService.obterFilme(1L))// chamada do metodo e parametros
 			.thenReturn(new Filme(1L, "O Poderoso Chefão", "Sem descrição"));
-		
+
+
+		//quando aontecer alto com a
 		given()
 			.accept(ContentType.JSON)
 		.when()
+				// quando chegar uma requisição tipo get no endpoint /filmes, então o status code deve ser ok(200)
 			.get("/filmes/{codigo}", 1L)
 		.then()
 			.statusCode(HttpStatus.OK.value());
@@ -49,12 +55,11 @@ public class FilmeControllerTest {
 	public void deveRetornarNaoEncontrado_QuandoBuscarFilme() {
 		
 		when(this.filmeService.obterFilme(5L))
-			.thenReturn(null);
-		
+				.thenReturn(null);
 		given()
 			.accept(ContentType.JSON)
 		.when()
-			.get("/filmes/{codigo}", 5L)
+			.get("/filmes/{ID}", 5L)
 		.then()
 			.statusCode(HttpStatus.NOT_FOUND.value());
 	}
@@ -70,5 +75,10 @@ public class FilmeControllerTest {
 			.statusCode(HttpStatus.BAD_REQUEST.value());
 		
 		verify(this.filmeService, never()).obterFilme(-1L);
+	}
+
+	@Test
+	public void deveRetornaralgo(){
+
 	}
 }
